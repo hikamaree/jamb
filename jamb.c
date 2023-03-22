@@ -12,7 +12,7 @@ int na_dole;
 int na_gore;
 int rucna;
 
-int	*baci_kocke();
+void	baci_kocke(int *kocke);
 int	*biraj_kocke(int *kocke);
 int 	*biraj_potez(int **tabela, int *c, int *r, int *v, int *kocke, int bacanje);
 void	brisi_matricu(int **tabela);
@@ -21,7 +21,7 @@ int 	lkg();
 void 	nova_igra();
 int 	**nova_tabela(int *c, int *r, int *v);
 void 	pisi_tabelu(int **tabela, int *c, int *r, int *v);
-int	*pomoc_prijatelja(int **tabela, int *c, int *r, int *v, int *kocke);
+void	pomoc_prijatelja(int **tabela, int *c, int *r, int *v, int *kocke);
 void 	runda(int **tabela, int *c, int *r, int *v);
 void 	sortiraj(int *kocke);
 void 	upisi(int **tabela, int *c, int *r, int *v, int *kocke, int bacanje);
@@ -34,12 +34,10 @@ int lkg(){
 	return (int)(seed % 6 + 1);
 }
 
-int *baci_kocke(){
-	static int kocke[5];
-	for ( int i = 0; i < 10; i++ ) {
+void baci_kocke(int *kocke){
+	for ( int i = 0; i < 5; i++ ) {
 		kocke[i] = lkg();
 	}
-	return kocke;
 }
 
 int *biraj_kocke(int *kocke){
@@ -76,7 +74,9 @@ int *biraj_potez(int **tabela, int *c, int *r, int *v, int *kocke, int bacanje){
 				return kocke;
 			case '3':
 				if(bacanje == 1){
-					return pomoc_prijatelja(tabela, c, r, v, kocke);
+					pomoc_prijatelja(tabela, c, r, v, kocke);
+					*kocke = 10;
+					return kocke;
 				}
 				else
 					printf("Uneta opcija ne postoji...\n");
@@ -149,9 +149,8 @@ void pisi_tabelu(int **tabela, int *c, int *r, int *v){
 		brisi_matricu(tmp);
 }
 
-int *pomoc_prijatelja(int **tabela, int *c, int *r, int *v, int *kocke){
-	int **tmp, *k = malloc(sizeof(int));
-	*k = 10;
+void pomoc_prijatelja(int **tabela, int *c, int *r, int *v, int *kocke){
+	int **tmp;
 	if(broj_runde < 14)
 		tmp = nova_tabela(c, r, v);
 	else
@@ -163,28 +162,28 @@ int *pomoc_prijatelja(int **tabela, int *c, int *r, int *v, int *kocke){
         	rucna --;
 		if(broj_runde < 14)
 			brisi_matricu(tmp);
-		return k;
+		return;
 	}
 	if((tmp[8][2] == -1) && (kocke[1] == kocke[2] && kocke[2] == kocke[3] && (kocke[0] == kocke[1] || kocke[0] == kocke[4]))){
 		upisi_bodove(tabela, c, r, v, 2, 9, kocke, 1);
 		rucna --;
 		if(broj_runde < 14)
 			brisi_matricu(tmp);
-		return k;
+		return;
 	}
 	if((tmp[7][2] == -1) && ((kocke[0] == kocke[1] && kocke[1] == kocke[2] && kocke[3] == kocke[4]) || (kocke[0] == kocke[1] && kocke[2] == kocke[3] && kocke[3] == kocke[4]))){
 		upisi_bodove(tabela, c, r, v, 2, 8, kocke, 1);
 		rucna --;
 		if(broj_runde < 14)
 			brisi_matricu(tmp);
-		return k;
+		return;
 	}
 	if((tmp[6][2] == -1) && (kocke[0] + 1 == kocke[1] && kocke[1] + 1 == kocke[2] && kocke[2] + 1 == kocke[3] && kocke[3] + 1 == kocke[4])){
 		upisi_bodove(tabela, c, r, v, 2, 7, kocke, 1);
 		rucna --;
 		if(broj_runde < 14)
 			brisi_matricu(tmp);
-		return k;
+		return;
 	}
 	for(int i = 6; i > 0; i--){
 		int br = 0;
@@ -196,12 +195,12 @@ int *pomoc_prijatelja(int **tabela, int *c, int *r, int *v, int *kocke){
 			rucna --;
 			if(broj_runde < 14)
 				brisi_matricu(tmp);
-			return k;
+			return;
 		}
 	}
 	if (na_dole == 11 && na_gore == 0){
 		upisi_rucnu(tabela, c, r, v, kocke);
-		return k;
+		return;
 	}
 	for(int z = 0; z < 2; z++){
 		int ponovo[5] = {-1, -1, -1, -1, -1};
@@ -225,47 +224,43 @@ int *pomoc_prijatelja(int **tabela, int *c, int *r, int *v, int *kocke){
 				}
 			}
 		}
-		if(na_dole > 6 && na_gore <= 6){
-			int x = verovatnoca(kocke, na_dole);
+		else if(na_dole > 6 && na_gore <= 6){
+			int x;
+			x = verovatnoca(kocke, na_dole);
 			if(x == 20){
 				upisi_bodove(tabela, c, r, v, 0, na_dole, kocke, 1 + z);
 				na_dole ++;
 				if(broj_runde < 14)
 					brisi_matricu(tmp);
-				return k;
+				return;
 			}
-			if(x == -1){
+			else if(x == -1){
 				int j = 0;
 				for(int i = 0; i < 5; i++)
-					if(kocke[i] != na_gore){
-						ponovo[j] = i;
-						j ++;
-					}
-			}	
+					if(kocke[i] != na_gore)
+						ponovo[i] = i;
+			}
 			else
 				ponovo[0] = x;
 		}
-		if(na_dole <= 6 && na_gore > 6){
+		else if(na_dole <= 6 && na_gore > 6){
 			int x = verovatnoca(kocke, na_gore);
 			if(x == 20){
 				upisi_bodove(tabela, c, r, v, 1, na_gore, kocke, 1 + z);
 				na_gore --;
 				if(broj_runde < 14)
 					brisi_matricu(tmp);
-				return k;
+				return;
 			}
 			if(x == -1){
-				int j = 0;
 				for(int i = 0; i < 5; i++)
-					if(kocke[i] != na_dole){
-						ponovo[j] = i;
-						j ++;
-					}
+					if(kocke[i] != na_dole)
+						ponovo[i] = i;
 			}
 			else
 				ponovo[0] = x;
 		}
-		if(na_dole > 6 && na_gore > 6){
+		else if(na_dole > 6 && na_gore > 6){
 			int d = verovatnoca(kocke, na_dole);
 			int g = verovatnoca(kocke, na_gore);
 			if(g == 20){
@@ -273,42 +268,37 @@ int *pomoc_prijatelja(int **tabela, int *c, int *r, int *v, int *kocke){
 				na_gore --;
 				if(broj_runde < 14)
 					brisi_matricu(tmp);
-				return k;
+				return;
 			}
-			if(d == 20){
+			else if(d == 20){
 				upisi_bodove(tabela, c, r, v, 0, na_dole, kocke, 1 + z);
 				na_dole ++;
 				if(broj_runde < 14)
 					brisi_matricu(tmp);
-				return k;
+				return;
 			}
-			if(g != -1)
+			else if(g != -1)
 				ponovo[0] = g;
 			else if(d != -1)
 				ponovo[0] = d;
-			else{
+			else
 				for(int i = 0; i < 5; i++)
 					ponovo[i] = i;
-			}
 		}
 		printf("\nVase kocke su ");
 		for(int i = 0; i < 5; i++)
 			printf("%d ", kocke[i]);
 		printf("\nPonovo bacam kocke ");
-		int i = 0;
-		while(ponovo[i] != -1 && i < 5){
-			printf("%d ", ponovo[i] + 1);
-			i++;
+		for (int i = 0; i < 5; i++){
+			if (ponovo[i] != -1){
+				printf("%d ", ponovo[i] + 1);
+				kocke[ponovo[i]] = lkg();
+			}
 		}
 		printf("\nPritisnite enter da nastavite...\n");
-		if (z == 0) 
+		if (z == 0)
 			getchar();
 		while(getchar()!='\n'){}
-		i = 0;
-		while(ponovo[i] != -1 && i < 5){
-			kocke[ponovo[i]] = lkg();
-			i++;
-		}
 	}
 	if(na_gore <= 6 && na_dole <= 6){
 		upisi_bodove(tabela, c, r, v, 0, na_dole, kocke, 3);
@@ -328,10 +318,9 @@ int *pomoc_prijatelja(int **tabela, int *c, int *r, int *v, int *kocke){
 	}
 	if(broj_runde < 14)
 		brisi_matricu(tmp);
-	return k;
 }
 
-int verovatnoca(int kocke[], int vrsta){
+int verovatnoca(int *kocke, int vrsta){
 	int br = 0, vrv = 0;
 	sortiraj(kocke);
 	if (vrsta == 10){
@@ -410,15 +399,15 @@ void sortiraj(int *kocke){
 void upisi_csc(int *c, int *r, int *v, int kolona, int vrsta, int vrednost){
 	for(int i = kolona + 1; i < 4; i++)
 		c[i] ++;
-	for(int i = broj_runde; i > c[kolona] - 1; i--){
+	for(int i = broj_runde; i > c[kolona]; i--){
 		r[i] = r[i - 1];
 		v[i] = v[i - 1];
 	}
-	*(r + *(c + kolona)) = vrsta;
-	*(v + *(c + kolona)) = vrednost;
+	r[c[kolona]] = vrsta;
+	v[c[kolona]] = vrednost;
 }
 
-void upisi_bodove(int **tabela, int *c, int *r, int *v, int kolona, int vrsta, int kocke[], int bacanje){
+void upisi_bodove(int **tabela, int *c, int *r, int *v, int kolona, int vrsta, int *kocke, int bacanje){
 	int br_bodova, br = 0;
 	if (vrsta <= 6){
 		for (int i = 0; i < 5; i++)
@@ -475,7 +464,7 @@ void upisi_bodove(int **tabela, int *c, int *r, int *v, int kolona, int vrsta, i
 	}
 }
 
-void upisi_rucnu(int **tabela, int *c, int *r, int *v, int kocke[]){
+void upisi_rucnu(int **tabela, int *c, int *r, int *v, int *kocke){
 	int x, j = 0, **tmp;
 	int opcije[rucna];
 	if (broj_runde < 14)
@@ -510,7 +499,7 @@ void upisi_rucnu(int **tabela, int *c, int *r, int *v, int kocke[]){
 	}
 }
 
-void upisi(int **tabela, int *c, int *r, int *v, int kocke[], int bacanje){
+void upisi(int **tabela, int *c, int *r, int *v, int *kocke, int bacanje){
 	char x;
 	int j = 0;
 	if (na_dole < 11)
@@ -557,29 +546,28 @@ void upisi(int **tabela, int *c, int *r, int *v, int kocke[], int bacanje){
 }
 
 void runda(int **tabela, int *c, int *r, int *v){
-	int bacanje = 1, *t, *kocke = (int *)malloc(5 * sizeof(int));
-	t = baci_kocke();
+	int bacanje = 1, t, *kocke = (int *)malloc(5 * sizeof(int));
+	baci_kocke(kocke);
 
-	while(bacanje < 3 && *t != 20){
+	while(bacanje < 3 && *kocke != 20){
 		system("clear"); //system("cls");
 		pisi_tabelu(tabela, c, r, v);
 		printf("\nBacanje: %d \n", bacanje);
-		for (int i = 0; i < 5; i++){
-			printf("%d\t", t[i]);
-			kocke[i] = t[i];
-		}
+		for (int i = 0; i < 5; i++)
+			printf("%d\t", kocke[i]);
+		t = *kocke;
 		printf("\n");
-		t = biraj_potez(tabela, c, r, v, t, bacanje);
-		if(*t == 10){
+		kocke = biraj_potez(tabela, c, r, v, kocke, bacanje);
+		if(*kocke == 10){
 			free(kocke);
 			return;
 		}
 		bacanje++;
 	}
-	if(*t == 20)
+	if(*kocke == 20){
+		*kocke = t;
 		bacanje--;
-	else 
-		kocke = t;
+	}
 	system("clear"); //system("cls");
 	pisi_tabelu(tabela, c, r, v);
 	printf("\nBacanje: %d \n", bacanje);
@@ -588,6 +576,7 @@ void runda(int **tabela, int *c, int *r, int *v){
 	printf("\n");
 	sortiraj(kocke);
 	upisi(tabela, c, r, v, kocke, bacanje);
+	free(kocke);
 }
 
 int **nova_tabela(int *c, int *r, int *v){
