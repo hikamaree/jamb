@@ -571,7 +571,6 @@ void runda(int **tabela, int *c, int *r, int *v){
 		printf("\n");
 		t = biraj_potez(tabela, c, r, v, t, bacanje);
 		if(*t == 10){
-			free(t);
 			free(kocke);
 			return;
 		}
