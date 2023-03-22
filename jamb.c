@@ -589,7 +589,6 @@ void runda(int **tabela, int *c, int *r, int *v){
 	printf("\n");
 	sortiraj(kocke);
 	upisi(tabela, c, r, v, kocke, bacanje);
-	free(kocke);
 }
 
 int **nova_tabela(int *c, int *r, int *v){
